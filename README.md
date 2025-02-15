@@ -1,4 +1,7 @@
+```bash
 export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+sudo chmode 644 /etc/rancher/k3s/k3s.yaml
+```
 ## cert-manager
 ```bash
 cd ~/manifests/common/cert-manager/base 
