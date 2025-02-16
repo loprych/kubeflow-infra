@@ -261,6 +261,15 @@ kubectl kustomize . | kubectl apply -f -
 cd ~/manifests/apps/pipeline/upstream/env/cert-manager/platform-agnostic-multi-user
 kubectl kustomize . | kubectl apply -f -
 ```
+
+### fix pipeline pods startup fail
+```bash
+kubectl kustomize . | kubectl delete -f -
+```
+```bash
+kubectl kustomize . | kubectl apply -f -
+```
+
 ### fix metadata issue in pipelines
 ```bash
 kubectl edit deployment ml-pipeline-ui -n kubeflow
