@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sa-minio-kserve
+  namespace: kubeflow-user-example-com
+secrets:
+  - name: minio-secret-kserve

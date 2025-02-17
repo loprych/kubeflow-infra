@@ -1,0 +1,33 @@
+apiVersion: "serving.kserve.io/v1beta1"
+kind: "InferenceService"
+metadata:
+  name: "yolov8"
+  namespace: kubeflow-user-example-com
+spec:
+  predictor:
+    serviceAccountName: sa-minio-kserve
+    pytorch:
+      storageUri: "s3://mlpipeline/model/yolov8n.pt"
+      protocolVersion: "v2"
+      env:
+        - name: S3_ENDPOINT
+          value: "minio-service.kubeflow:9000" 
+        - name: S3_USE_HTTPS
+          value: "0"
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: minio-secret-kserve
+              key: AWS_ACCESS_KEY_ID
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: minio-secret-kserve
+              key: AWS_SECRET_ACCESS_KEY
+      resources:
+        requests:
+          cpu: "1"
+          memory: "2Gi"
+        limits:
+          cpu: "2"
+          memory: "4Gi"
