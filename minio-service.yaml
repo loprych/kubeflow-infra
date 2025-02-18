@@ -3,5 +3,9 @@ kind: ServiceAccount
 metadata:
   name: sa-minio-kserve
   namespace: kubeflow-user-example-com
-secrets:
+  annotations:
+    serving.kserve.io/s3-endpoint: minio-service.kubeflow:9000
+    serving.kserve.io/s3-usehttps: "0"
+    serving.kserve.io/s3-region: "us-east-1"
+imagePullSecrets:
   - name: minio-secret-kserve
