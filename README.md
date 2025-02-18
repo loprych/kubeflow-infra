@@ -362,7 +362,9 @@ kubectl get pods -n kubeflow-user-example-com -l serving.kserve.io/inferenceserv
 kubectl port-forward -n kubeflow-user-example-com svc/yolov8-predictor-00001-private 8085:8012
 ```
 ```bash
-curl -X POST http://localhost:8085/v1/models/yolo_model:predict   -H "Content-Type: application/json"   -d '{
+curl -X POST http://localhost:8085/v1/models/yolo_model:predict \
+  -H "Content-Type: application/json" \
+  -d '{
     "inputs": [
       {
         "name": "input0",
