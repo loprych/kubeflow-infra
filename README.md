@@ -1,3 +1,7 @@
+## install k3s
+```bash
+curl -sfL https://get.k3s.io | sh -
+```
 ```bash
 export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 sudo chmod 644 /etc/rancher/k3s/k3s.yaml
@@ -338,25 +342,31 @@ minio
 kubectl port-forward -n kubeflow svc/minio-service 9000:9000
 ```
 
-localhost:9000
-
 ## pipeline
 ```bash
 kubectl apply -f poddefault.yaml -n kubeflow-user-example-com
 ```
+```bash
 kubectl patch svc ml-pipeline -n kubeflow -p '{"spec": {"type": "NodePort"}}'
+```
+
+# cheatsheet
+
+## uninstall k3s
+```bash
+sudo /usr/local/bin/k3s-uninstall.sh
+```
+```bash
+sudo rm -rf /var/lib/rancher
+sudo rm -rf /etc/rancher
+```
 
 
-=========================================================================================
-
-## cheatsheet
 ``bash
 kubectl port-forward svc/istio-ingressgateway -n istio-system 8080:80
 
 kubectl patch svc istio-ingressgateway -n istio-system \
   -p '{"spec": {"type": "NodePort"}}'
-
-service/istio-ingressgateway patched
 
 kubectl get svc istio-ingressgateway -n istio-system -o yaml
 ```
