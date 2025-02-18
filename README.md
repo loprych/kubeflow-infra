@@ -350,6 +350,32 @@ kubectl apply -f poddefault.yaml -n kubeflow-user-example-com
 kubectl patch svc ml-pipeline -n kubeflow -p '{"spec": {"type": "NodePort"}}'
 ```
 
+## test model
+```bash
+kubectl apply -f inferenceservice.yaml
+```
+```bash
+kubectl get pods -n kubeflow-user-example-com -l serving.kserve.io/inferenceservice=yolov8
+```
+
+```bash
+kubectl port-forward -n kubeflow-user-example-com svc/yolov8-predictor-00001-private 8085:8012
+```
+```bash
+curl -X POST http://localhost:8085/v1/models/yolo_model:predict   -H "Content-Type: application/json"   -d '{
+    "inputs": [
+      {
+        "name": "input0",
+        "shape": [1],
+        "datatype": "BYTES",
+        "data": ["'"$(base64 -w 0 zidane.jpg)"'"]
+      }
+    ]
+  }'
+```
+
+
+
 # cheatsheet
 
 ## uninstall k3s
