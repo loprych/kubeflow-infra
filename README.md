@@ -363,6 +363,7 @@ kubectl port-forward -n kubeflow-user-example-com svc/yolov8-predictor-00001-pri
 ```
 ```bash
 kubectl port-forward -n kubeflow-user-example-com yolov8-predictor-00001-deployment-<...> 8080:8080
+kubectl port-forward -n kubeflow-user-example-com yolov8-predictor-00001-deployment-655f8bffc9-5dq2z 8080:8080
 ```
 ```bash
 curl -X POST http://localhost:8085/v1/models/yolo_model:predict \
@@ -378,8 +379,6 @@ curl -X POST http://localhost:8085/v1/models/yolo_model:predict \
     ]
   }'
 ```
-
-
 
 # cheatsheet
 
