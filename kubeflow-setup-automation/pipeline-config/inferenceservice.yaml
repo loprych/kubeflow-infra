@@ -1,0 +1,13 @@
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: yolov8
+  namespace: kubeflow-user-example-com
+spec:
+  predictor:
+    serviceAccountName: sa-minio-kserve
+    model:
+      modelFormat:
+        name: pytorch
+      storageUri: "s3://mlpipeline/kserve"
+      protocolVersion: "v2"
