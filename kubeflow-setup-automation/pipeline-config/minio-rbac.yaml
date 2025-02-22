@@ -1,0 +1,38 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: minio-access-role
+  namespace: kubeflow-user-example-com
+rules:
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get"]
+- apiGroups: [""]
+  resources: ["pods", "services"]
+  verbs: ["create", "get", "list", "watch", "delete"]
+- apiGroups: ["kubeflow.org"]
+  resources: ["poddefaults", "experiments", "runs", "pipelines"]
+  verbs: ["get", "list", "create", "update", "delete"]
+- apiGroups: [""]
+  resources: ["persistentvolumeclaims"]
+  verbs: ["create", "delete", "get"]
+- apiGroups: ["batch"]
+  resources: ["jobs"]
+  verbs: ["create", "get", "list", "watch", "delete"]
+- apiGroups: ["serving.kserve.io"]
+  resources: ["inferenceservices"]
+  verbs: ["create", "get", "list", "watch", "delete", "update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: minio-access-binding
+  namespace: kubeflow-user-example-com
+subjects:
+- kind: ServiceAccount
+  name: sa-minio-kserve
+  namespace: kubeflow-user-example-com
+roleRef:
+  kind: Role
+  name: minio-access-role
+  apiGroup: rbac.authorization.k8s.io

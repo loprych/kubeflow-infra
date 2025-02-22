@@ -1,0 +1,13 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- ../../manifests/apps/tensorboard/tensorboards-web-app/upstream/overlays/istio
+- ../../manifests/apps/tensorboard/tensorboard-controller/upstream/overlays/kubeflow
+- ../../manifests/apps/katib/upstream/installs/katib-with-kubeflow
+- ../../manifests/apps/training-operator/upstream/overlays/kubeflow
+- ../../manifests/apps/pipeline/upstream/env/cert-manager/cluster-scoped-resources
+- ../../manifests/apps/pipeline/upstream/env/cert-manager/platform-agnostic-multi-user
+- ../../manifests/common/knative/knative-serving/overlays/gateways
+- ../../manifests/common/istio-1-23/cluster-local-gateway/base
+- ../../manifests/contrib/kserve/kserve
+- ../../manifests/contrib/kserve/models-web-app/overlays/kubeflow
