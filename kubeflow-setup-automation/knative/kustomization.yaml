@@ -1,8 +1,0 @@
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-
-resources:
-- eventing-crds.yaml
-- eventing-core.yaml
-- ../../manifests/common/knative/knative-serving/overlays/gateways
-- ../../manifests/common/istio-1-23/cluster-local-gateway/base
