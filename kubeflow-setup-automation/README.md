@@ -1,119 +1,220 @@
 # Kubeflow Setup Automation
 
-Automatyzacja konfiguracji Kubeflow używając Kustomize. Doszło do redukcji około 36 manualnych kroków do 8 komend, zachowując oryginalną kolejność instalacji komponentów.
-
 ## Struktura projektu
 
 ```
 .
-├── CRD/                    # Custom Resource Definitions
-│   └── kustomization.yaml
-├── infrastructure/         # Komponenty infrastruktury
-│   ├── base/              # cert-manager, istio, dex, oauth2-proxy
-│   └── overlays/
-│       └── nodeport/      # Konfiguracja NodePort dla istio-ingressgateway
-├── core/                  # Podstawowe komponenty Kubeflow
-│   └── kustomization.yaml  # namespace, roles, networkpolicies, dashboard
-├── notebooks/            # Komponenty Jupyter
-│   └── kustomization.yaml  # notebook-controller, web-app, volumes
-├── https-config/          # Konfiguracja HTTPS
-│   ├── base/
+├── core
+│   ├── base
+│   │   └── kustomization.yaml
+│   └── overlays
+│       └── default
+│           └── kustomization.yaml
+├── CRD
+│   ├── base
+│   │   └── kustomization.yaml
+│   └── overlays
+│       └── default
+│           └── kustomization.yaml
+├── https-config
+│   ├── base
 │   │   ├── cluster-issuer.yaml
-│   │   └── kubeflow-certificate.yaml
-│   └── overlays/
-│       └── gateway-https/
-├── knative/              # Knative Serving i Eventing
-│   ├── base/
-│   │   └── resources/
-│   └── overlays/
-│       └── default/
-├── kserve/               # KServe i Model Serving
-│   ├── base/
-│   └── overlays/
-│       └── default/
-├── ml-components/        # ML komponenty (Katib, Training-operator)
-│   └── kustomization.yaml
-└── pipeline/            # Kubeflow Pipeline
-    ├── base/
-    │   └── resources/   # Konfiguracja minio
-    └── overlays/
-        └── ui-customization/  # Customizacja UI i metadata
+│   │   ├── kubeflow-certificate.yaml
+│   │   ├── kustomization.yaml
+│   │   └── tls-secret.yaml
+│   └── overlays
+│       └── gateway-https
+│           ├── kustomization.yaml
+│           └── patches
+│               └── gateway.yaml
+├── infrastructure
+│   ├── base
+│   │   └── kustomization.yaml
+│   └── overlays
+│       └── nodeport
+│           ├── kustomization.yaml
+│           └── patches
+│               └── ingressgateway-nodeport.yaml
+├── knative
+│   ├── base
+│   │   ├── components
+│   │   │   ├── eventing-core
+│   │   │   │   └── kustomization.yaml
+│   │   │   ├── eventing-crds
+│   │   │   │   └── kustomization.yaml
+│   │   │   └── serving
+│   │   │       └── kustomization.yaml
+│   │   └── kustomization.yaml
+│   └── overlays
+│       └── default
+│           └── kustomization.yaml
+├── kserve
+│   ├── base
+│   │   ├── components
+│   │   │   ├── core
+│   │   │   │   └── kustomization.yaml
+│   │   │   └── models-web-app
+│   │   │       └── kustomization.yaml
+│   │   └── kustomization.yaml
+│   └── overlays
+│       └── default
+│           └── kustomization.yaml
+├── ml-components
+│   ├── base
+│   │   └── kustomization.yaml
+│   └── overlays
+│       └── default
+│           └── kustomization.yaml
+├── notebooks
+│   └── base
+│       ├── kustomization.yaml
+│       └── overlays
+│           └── default
+│               └── kustomization.yaml
+├── pipeline
+│   ├── base
+│   │   ├── kustomization.yaml
+│   │   └── resources
+│   │       ├── minio-rbac.yaml
+│   │       ├── minio-secret-kserve.yaml
+│   │       ├── minio-service.yaml
+│   │       ├── mlpipeline-minio-artifact.yaml
+│   │       └── poddefault.yaml
+│   └── overlays
+│       └── ui-customization
+│           ├── kustomization.yaml
+│           └── patches
+│               └── ml-pipeline-ui-deployment.yaml
+├── README.md
+└── scripts
+    ├── apply-knative-eventing.sh
+    ├── apply-kserve.sh
+    └── generate-certs.sh
 ```
 
-## Kolejność instalacji (zgodna z oryginalną instrukcją manualną)
+## Przygotowanie środowiska
+
+1. Upewnij się, że masz zainstalowane wymagane narzędzia:
+```bash
+kubectl version
+```
+
+2. Przygotuj skrypty pomocnicze:
+```bash
+chmod +x scripts/generate-certs.sh
+chmod +x scripts/apply-knative-eventing.sh
+chmod +x scripts/apply-kserve.sh
+```
+
+## Kolejność instalacji
 
 1. Instalacja CRDs:
 ```bash
-kubectl apply -k CRD/
+cd ~/kubeflow-setup-automation
+
+kubectl kustomize CRD/base | kubectl apply -f -
+
 kubectl wait --for=condition=established --timeout=60s crd/gateways.networking.istio.io
+kubectl wait --for=condition=established --timeout=60s crd/certificates.cert-manager.io
 ```
 
-2. Instalacja infrastruktury (cert-manager, istio, dex, oauth2-proxy):
+2. Instalacja infrastruktury:
 ```bash
-kubectl apply -k infrastructure/overlays/nodeport/
+kubectl kustomize infrastructure/base | kubectl apply -f -
+
+
 kubectl wait --for=condition=Available --timeout=300s -n cert-manager deployment/cert-manager
 kubectl wait --for=condition=Available --timeout=300s -n istio-system deployment/istiod
+kubectl wait --for=condition=Available --timeout=300s -n auth deployment/dex
+kubectl wait --for=condition=Available --timeout=300s -n oauth2-proxy deployment/oauth2-proxy
+
+kubectl kustomize infrastructure/overlays/nodeport/ | kubectl apply -f -
 ```
 
 3. Instalacja core components:
 ```bash
-kubectl apply -k core/
+kubectl kustomize core/base | kubectl apply -f -
 ```
 
 4. Instalacja komponentów notebooks:
 ```bash
-kubectl apply -k notebooks/
+kubectl kustomize notebooks/base | kubectl apply -f -
 ```
 
 5. Konfiguracja HTTPS:
 ```bash
-kubectl apply -k https-config/overlays/gateway-https/
+./scripts/generate-certs.sh
+kubectl kustomize https-config/overlays/gateway-https | kubectl apply -f -
+kubectl wait --for=condition=Ready --timeout=300s -n istio-system certificate/kubeflow-tls
 ```
 
-6. Instalacja Knative (wymagane dla KServe):
+6. Instalacja komponentów ML:
 ```bash
-kubectl apply -k knative/overlays/default/
-kubectl wait --for=condition=Available --timeout=300s -n knative-serving deployment/activator
+kubectl kustomize ml-components/base | kubectl apply -f -
 ```
 
-7. Instalacja KServe i pozostałych komponentów ML:
+7. Instalacja pipeline z customizacją:
 ```bash
-kubectl apply -k kserve/overlays/default/
-kubectl apply -k ml-components/
+kubectl kustomize pipeline/base | kubectl apply -f -
+# Możliwy potrzebny restart dla rozwiązania problemów z uruchomieniem
+kubectl kustomize pipeline/base | kubectl delete -f -
+kubectl kustomize pipeline/base | kubectl apply -f -
+
+kubectl kustomize pipeline/overlays/ui-customization | kubectl apply -f -
 ```
 
-8. Instalacja pipeline z customizacją:
+8. Instalacja Knative:
 ```bash
-kubectl apply -k pipeline/overlays/ui-customization/
+# Instalacja Knative Serving
+kubectl kustomize knative/base/components/serving | kubectl apply -f -
+
+kubectl apply --filename https://github.com/knative/eventing/releases/download/knative-v1.16.1/eventing-crds.yaml
+
+kubectl apply --filename https://github.com/knative/eventing/releases/download/knative-v1.16.1/eventing-core.yaml
+```
+
+9. Instalacja KServe:
+```bash
+kubectl kustomize kserve/base/components/core | kubectl apply --server-side --force-conflicts -f -
+
+kubectl kustomize kserve/overlays/default/ | kubectl apply -f -
 ```
 
 ## Weryfikacja instalacji
 
 1. Sprawdź stan podów w kluczowych namespace'ach:
 ```bash
-for ns in kubeflow istio-system cert-manager knative-serving kserve; do
+for ns in kubeflow istio-system cert-manager auth; do
   echo "Checking namespace: $ns"
   kubectl get pods -n $ns
 done
 ```
 
-- HTTPS:
+2. Sprawdź, czy certyfikaty zostały poprawnie utworzone:
 ```bash
-kubectl port-forward svc/istio-ingressgateway -n istio-system 8443:443
-# Otwórz https://kubeflow.local:8443
+kubectl get secrets -n istio-system kubeflow-tls
+kubectl get certificate -n istio-system
 ```
 
-## Stworzone overlays
+3. Sprawdź stan komponentów Knative i KServe:
+```bash
+kubectl get pods -n knative-serving
+kubectl get pods -n kubeflow | grep kserve
+```
+3. Dostęp do minIO
+```bash
+kubectl port-forward -n kubeflow svc/minio-service 9000:9000
+```
+Otwórz https://localhost:9000
 
-- `infrastructure/overlays/nodeport/` - NodePort dla istio-ingressgateway
-- `https-config/overlays/gateway-https/` - Konfiguracja HTTPS
-- `knative/overlays/default/` - Podstawowa konfiguracja Knative
-- `kserve/overlays/default/` - Podstawowa konfiguracja KServe
-- `pipeline/overlays/ui-customization/` - Modyfikacje UI pipeline'u
+## Troubleshooting
 
-## Uwagi
+1. Problemy z Knative:
+```bash
+# Sprawdź CRDs Knative
+kubectl get crd | grep knative
 
-- Kolejność instalacji jest kluczowa i odzwierciedla oryginalną instrukcję manualną
-- Patche i overlays są zorganizowane w sposób modularny dla łatwiejszego maintenancu
-- Przed instalacją kolejnego komponentu upewnij się, że poprzedni jest w pełni gotowy
-- Wszystkie ścieżki w kustomization.yaml są relatywne do głównego katalogu
+# Sprawdź logi podów Knative
+kubectl logs -n knative-serving -l app=controller
+```
+

@@ -1,4 +1,4 @@
-apiVersion: networking.istio.io/v1
+apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
 metadata:
   name: kubeflow-gateway
@@ -14,7 +14,7 @@ spec:
       number: 80
       protocol: HTTP
   - hosts:
-    - '*' 
+    - '*'
     port:
       name: https
       number: 443

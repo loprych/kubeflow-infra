@@ -6,4 +6,3 @@ resources:
 
 patches:
 - path: patches/ml-pipeline-ui-deployment.yaml
-- path: patches/ml-pipeline-service.yaml

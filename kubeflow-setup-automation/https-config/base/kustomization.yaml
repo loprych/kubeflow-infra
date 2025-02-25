@@ -5,6 +5,7 @@ resources:
 - ../../../manifests/common/istio-1-23/kubeflow-istio-resources/base
 - cluster-issuer.yaml
 - kubeflow-certificate.yaml
+- tls-secret.yaml
 
 # patches:
 # - patch: |-

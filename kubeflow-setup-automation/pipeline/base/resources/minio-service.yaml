@@ -7,5 +7,8 @@ metadata:
     serving.kserve.io/s3-endpoint: minio-service.kubeflow:9000
     serving.kserve.io/s3-usehttps: "0"
     serving.kserve.io/s3-region: "us-east-1"
+    serving.kserve.io/s3-credential: "minio-secret-kserve"
 imagePullSecrets:
+  - name: minio-secret-kserve
+secrets:
   - name: minio-secret-kserve

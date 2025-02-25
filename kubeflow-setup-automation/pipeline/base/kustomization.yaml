@@ -7,3 +7,4 @@ resources:
 - resources/minio-secret-kserve.yaml
 - resources/minio-service.yaml
 - resources/poddefault.yaml
+- resources/mlpipeline-minio-artifact.yaml
