@@ -351,22 +351,39 @@ kubectl patch svc ml-pipeline -n kubeflow -p '{"spec": {"type": "NodePort"}}'
 ```
 
 ## test model
+### prepare config.properties to minIO
+```properties
+inference_address=http://0.0.0.0:8085
+management_address=http://0.0.0.0:8085
+metrics_address=http://0.0.0.0:8082
+grpc_inference_port=7070
+grpc_management_port=7071
+enable_metrics_api=true
+metrics_format=prometheus
+number_of_netty_threads=4
+job_queue_size=100
+enable_envvars_config=true
+install_py_dep_per_model=true
+model_store=/mnt/models/model-store
+default_response_timeout=600
+service_envelope=kserve
+max_response_size=20971520
+max_request_size=20971520
+initial_heap_size=2g
+maximum_heap_size=4g
+model_snapshot={"name":"startup.cfg","modelCount":1,"models":{"yolo_model":{"1.0":{"defaultVersion":true,"marName":"yolo_model.mar","minWorkers":1,"maxWorkers":5,"batchSize":1,"maxBatchDelay":100,"responseTimeout":600}}}}
+```
 ```bash
 kubectl apply -f inferenceservice.yaml
 ```
 ```bash
 kubectl get pods -n kubeflow-user-example-com -l serving.kserve.io/inferenceservice=yolov8
 ```
-
 ```bash
-kubectl port-forward -n kubeflow-user-example-com svc/yolov8-predictor-00001-private 8085:8012
+kubectl port-forward -n kubeflow-user-example-com yolov8-predictor-00001-deployment-7684949674-qdmtc 8080:8080 8095:8085
 ```
 ```bash
-kubectl port-forward -n kubeflow-user-example-com yolov8-predictor-00001-deployment-<...> 8080:8080
-kubectl port-forward -n kubeflow-user-example-com yolov8-predictor-00001-deployment-655f8bffc9-5dq2z 8080:8080
-```
-```bash
-curl -X POST http://localhost:8085/v1/models/yolo_model:predict \
+curl -X POST http://localhost:8080/v1/models/yolo_model:predict \
   -H "Content-Type: application/json" \
   -d '{
     "inputs": [
