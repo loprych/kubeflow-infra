@@ -179,7 +179,7 @@ kubectl kustomize kserve/base/components/core | kubectl apply --server-side --fo
 kubectl kustomize kserve/overlays/default/ | kubectl apply -f -
 ```
 
-## Weryfikacja instalacji
+## Verify installation
 
 1. Check state of pods in key namespaces:
 ```bash
