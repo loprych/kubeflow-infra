@@ -1,6 +1,6 @@
 # Kubeflow Setup Automation
 
-## Struktura projektu
+## Kustomization structure
 
 ```
 .
@@ -92,23 +92,23 @@
     └── generate-certs.sh
 ```
 
-## Przygotowanie środowiska
+## Environment preparation
 
-1. Upewnij się, że masz zainstalowane wymagane narzędzia:
+1. Check kubectl:
 ```bash
 kubectl version
 ```
 
-2. Przygotuj skrypty pomocnicze:
+2. Prepare scripts:
 ```bash
 chmod +x scripts/generate-certs.sh
 chmod +x scripts/apply-knative-eventing.sh
 chmod +x scripts/apply-kserve.sh
 ```
 
-## Kolejność instalacji
+## Installation
 
-1. Instalacja CRDs:
+1. CRD install:
 ```bash
 cd ~/kubeflow-setup-automation
 
@@ -118,7 +118,7 @@ kubectl wait --for=condition=established --timeout=60s crd/gateways.networking.i
 kubectl wait --for=condition=established --timeout=60s crd/certificates.cert-manager.io
 ```
 
-2. Instalacja infrastruktury:
+2. Infra setup:
 ```bash
 kubectl kustomize infrastructure/base | kubectl apply -f -
 
@@ -136,36 +136,35 @@ kubectl kustomize infrastructure/overlays/nodeport/ | kubectl apply -f -
 kubectl kustomize core/base | kubectl apply -f -
 ```
 
-4. Instalacja komponentów notebooks:
+4. Notebook components install:
 ```bash
 kubectl kustomize notebooks/base | kubectl apply -f -
 ```
 
-5. Konfiguracja HTTPS:
+5. HTTPS configuration:
 ```bash
 ./scripts/generate-certs.sh
 kubectl kustomize https-config/overlays/gateway-https | kubectl apply -f -
 kubectl wait --for=condition=Ready --timeout=300s -n istio-system certificate/kubeflow-tls
 ```
 
-6. Instalacja komponentów ML:
+6. ML Components install:
 ```bash
 kubectl kustomize ml-components/base | kubectl apply -f -
 ```
 
-7. Instalacja pipeline z customizacją:
+7. Pipeline install and ml-pipeline-ui customization:
 ```bash
 kubectl kustomize pipeline/base | kubectl apply -f -
-# Możliwy potrzebny restart dla rozwiązania problemów z uruchomieniem
+# In case of issues with ml-pipeline pod crashloopback, reapply may be needed
 kubectl kustomize pipeline/base | kubectl delete -f -
 kubectl kustomize pipeline/base | kubectl apply -f -
 
 kubectl kustomize pipeline/overlays/ui-customization | kubectl apply -f -
 ```
 
-8. Instalacja Knative:
+8. Knative install:
 ```bash
-# Instalacja Knative Serving
 kubectl kustomize knative/base/components/serving | kubectl apply -f -
 
 kubectl apply --filename https://github.com/knative/eventing/releases/download/knative-v1.16.1/eventing-crds.yaml
@@ -173,7 +172,7 @@ kubectl apply --filename https://github.com/knative/eventing/releases/download/k
 kubectl apply --filename https://github.com/knative/eventing/releases/download/knative-v1.16.1/eventing-core.yaml
 ```
 
-9. Instalacja KServe:
+9. KServe install:
 ```bash
 kubectl kustomize kserve/base/components/core | kubectl apply --server-side --force-conflicts -f -
 
@@ -182,7 +181,7 @@ kubectl kustomize kserve/overlays/default/ | kubectl apply -f -
 
 ## Weryfikacja instalacji
 
-1. Sprawdź stan podów w kluczowych namespace'ach:
+1. Check state of pods in key namespaces:
 ```bash
 for ns in kubeflow istio-system cert-manager auth; do
   echo "Checking namespace: $ns"
@@ -190,18 +189,19 @@ for ns in kubeflow istio-system cert-manager auth; do
 done
 ```
 
-2. Sprawdź, czy certyfikaty zostały poprawnie utworzone:
+2. Check if the secrets are created correctly:
 ```bash
 kubectl get secrets -n istio-system kubeflow-tls
 kubectl get certificate -n istio-system
 ```
 
-3. Sprawdź stan komponentów Knative i KServe:
+3. Check KNative and KServe
 ```bash
 kubectl get pods -n knative-serving
 kubectl get pods -n kubeflow | grep kserve
 ```
-3. Dostęp do minIO
+
+4. MinIO access
 ```bash
 kubectl port-forward -n kubeflow svc/minio-service 9000:9000
 ```
@@ -209,12 +209,10 @@ Otwórz https://localhost:9000
 
 ## Troubleshooting
 
-1. Problemy z Knative:
+1. Knative issues:
 ```bash
-# Sprawdź CRDs Knative
 kubectl get crd | grep knative
 
-# Sprawdź logi podów Knative
 kubectl logs -n knative-serving -l app=controller
 ```
 
