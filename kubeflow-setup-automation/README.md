@@ -205,14 +205,6 @@ kubectl get pods -n kubeflow | grep kserve
 ```bash
 kubectl port-forward -n kubeflow svc/minio-service 9000:9000
 ```
-Otwórz https://localhost:9000
+Open https://localhost:9000
 
-## Troubleshooting
-
-1. Knative issues:
-```bash
-kubectl get crd | grep knative
-
-kubectl logs -n knative-serving -l app=controller
-```
 
