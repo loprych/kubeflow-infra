@@ -346,9 +346,8 @@ kubectl port-forward -n kubeflow svc/minio-service 9000:9000
 ```bash
 kubectl apply -f poddefault.yaml -n kubeflow-user-example-com
 ```
-```bash
-kubectl patch svc ml-pipeline -n kubeflow -p '{"spec": {"type": "NodePort"}}'
-```
+
+![](pipeline.png)
 
 ## test model
 ### prepare config.properties to minIO
