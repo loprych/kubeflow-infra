@@ -1,0 +1,20 @@
+FROM pytorch/torchserve:latest
+
+USER root
+RUN pip install torch torchvision ultralytics
+
+COPY config.properties /home/model-server/config.properties
+
+ENV TS_MANAGEMENT_TOKEN=""
+ENV TS_INFERENCE_TOKEN=""
+ENV ENABLE_TORCH_PROFILER=TRUE
+
+RUN chown -R model-server:model-server /home/model-server/config.properties
+
+USER model-server
+
+CMD ["torchserve", \
+     "--start", \
+     "--model-store", "/home/model-server/model-store", \
+     "--models", "yolo_model.mar", \
+     "--ts-config", "/home/model-server/config.properties"]

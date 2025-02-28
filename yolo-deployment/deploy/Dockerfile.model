@@ -1,0 +1,21 @@
+FROM pytorch/pytorch:2.1.0-cuda11.8-cudnn8-runtime
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pip install torch-model-archiver ultralytics
+
+COPY handler.py .
+
+CMD ["torch-model-archiver", \
+     "--model-name", "yolo_model", \
+     "--version", "1.0", \
+     "--handler", "./handler.py", \
+     "--extra-files", "/app/model/trained_model.pt", \
+     "--export-path", "/app/model_store", \
+     "--requirements-file", "requirements.txt"]

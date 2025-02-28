@@ -1,0 +1,357 @@
+Name:             yolov8-predictor-00001-deployment-8c6cd5b8d-7qjc7
+Namespace:        kubeflow-user-example-com
+Priority:         0
+Service Account:  sa-minio-kserve
+Node:             pear/192.168.55.103
+Start Time:       Mon, 17 Feb 2025 22:49:40 +0100
+Labels:           app=yolov8-predictor-00001
+                  component=predictor
+                  pod-template-hash=8c6cd5b8d
+                  security.istio.io/tlsMode=istio
+                  service.istio.io/canonical-name=yolov8-predictor
+                  service.istio.io/canonical-revision=yolov8-predictor-00001
+                  serviceEnvelope=kservev2
+                  serving.knative.dev/configuration=yolov8-predictor
+                  serving.knative.dev/configurationGeneration=1
+                  serving.knative.dev/configurationUID=8bcbecc5-50a3-438f-b9a7-70a2a9e8f0a6
+                  serving.knative.dev/revision=yolov8-predictor-00001
+                  serving.knative.dev/revisionUID=4b5a8c23-1a69-4af3-834b-23a66dce6863
+                  serving.knative.dev/service=yolov8-predictor
+                  serving.knative.dev/serviceUID=2900317f-c284-4c10-8845-b9c829bcc1fd
+                  serving.kserve.io/inferenceservice=yolov8
+Annotations:      autoscaling.knative.dev/class: kpa.autoscaling.knative.dev
+                  autoscaling.knative.dev/min-scale: 1
+                  internal.serving.kserve.io/storage-initializer-sourceuri: s3://mlpipeline/model/yolov8n.pt
+                  istio.io/rev: default
+                  kubectl.kubernetes.io/default-container: kserve-container
+                  kubectl.kubernetes.io/default-logs-container: kserve-container
+                  prometheus.io/path: /stats/prometheus
+                  prometheus.io/port: 15020
+                  prometheus.io/scrape: true
+                  prometheus.kserve.io/path: /metrics
+                  prometheus.kserve.io/port: 8082
+                  serving.knative.dev/creator: system:serviceaccount:kubeflow:kserve-controller-manager
+                  serving.kserve.io/enable-metric-aggregation: false
+                  serving.kserve.io/enable-prometheus-scraping: false
+                  sidecar.istio.io/status:
+                    {"initContainers":["istio-init"],"containers":["istio-proxy"],"volumes":["workload-socket","credential-socket","workload-certs","istio-env...
+Status:           Running
+IP:               10.42.0.150
+IPs:
+  IP:           10.42.0.150
+Controlled By:  ReplicaSet/yolov8-predictor-00001-deployment-8c6cd5b8d
+Init Containers:
+  storage-initializer:
+    Container ID:  containerd://0f96a79f9f434d75312ac07820c32a0714eed9b9bc655b3d4459c430b91aea66
+    Image:         kserve/storage-initializer:v0.14.0
+    Image ID:      docker.io/kserve/storage-initializer@sha256:f06b727cc7d9557205cf185aaca1199a38876ae61e763493f8704af0649530dd
+    Port:          <none>
+    Host Port:     <none>
+    Args:
+      s3://mlpipeline/model/yolov8n.pt
+      /mnt/models
+    State:          Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Mon, 17 Feb 2025 22:49:41 +0100
+      Finished:     Mon, 17 Feb 2025 22:49:49 +0100
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     1
+      memory:  1Gi
+    Requests:
+      cpu:     100m
+      memory:  100Mi
+    Environment:
+      AWS_ACCESS_KEY_ID:      <set to the key 'AWS_ACCESS_KEY_ID' in secret 'minio-secret-kserve'>      Optional: false
+      AWS_SECRET_ACCESS_KEY:  <set to the key 'AWS_SECRET_ACCESS_KEY' in secret 'minio-secret-kserve'>  Optional: false
+      S3_USE_HTTPS:           0
+      S3_ENDPOINT:            minio-service.kubeflow:9000
+      AWS_ENDPOINT_URL:       http://minio-service.kubeflow:9000
+      AWS_DEFAULT_REGION:     us-east-1
+    Mounts:
+      /mnt/models from kserve-provision-location (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-kx8cw (ro)
+  istio-init:
+    Container ID:  containerd://a2e2116492ac451cc1cb0dcd07182f7db41271e30397b3752c334c8a0d66e352
+    Image:         docker.io/istio/proxyv2:1.23.2
+    Image ID:      docker.io/istio/proxyv2@sha256:2876cfc2fdf47e4b9665390ccc9ccf2bf913b71379325b8438135c9f35578e1a
+    Port:          <none>
+    Host Port:     <none>
+    Args:
+      istio-iptables
+      -p
+      15001
+      -z
+      15006
+      -u
+      1337
+      -m
+      REDIRECT
+      -i
+      *
+      -x
+      
+      -b
+      *
+      -d
+      15090,15021,15020
+      --log_output_level=default:info
+    State:          Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Mon, 17 Feb 2025 22:49:49 +0100
+      Finished:     Mon, 17 Feb 2025 22:49:49 +0100
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     2
+      memory:  1Gi
+    Requests:
+      cpu:        100m
+      memory:     128Mi
+    Environment:  <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-kx8cw (ro)
+Containers:
+  kserve-container:
+    Container ID:  containerd://fd0637d0cda33e2e2bc78e3ba08cdeab10544449857bbcb3ccf54cab517ba1aa
+    Image:         index.docker.io/pytorch/torchserve-kfs@sha256:d6cfdac5d83007932aa7bfb29ec42858fbc5cd48b9a6f4a7f68088a5c3bde07e
+    Image ID:      docker.io/pytorch/torchserve-kfs@sha256:d6cfdac5d83007932aa7bfb29ec42858fbc5cd48b9a6f4a7f68088a5c3bde07e
+    Port:          8080/TCP
+    Host Port:     0/TCP
+    Args:
+      torchserve
+      --start
+      --model-store=/mnt/models/model-store
+      --ts-config=/mnt/models/config/config.properties
+    State:          Waiting
+      Reason:       CrashLoopBackOff
+    Last State:     Terminated
+      Reason:       StartError
+      Message:      failed to create containerd task: failed to create shim task: OCI runtime create failed: runc create failed: unable to start container process: error during container init: error mounting "/var/lib/kubelet/pods/9053e334-151d-424c-8667-38f8bebf1aa9/volumes/kubernetes.io~configmap/config-volume" to rootfs at "/mnt/models/config": create mountpoint for /mnt/models/config mount: mkdirat /run/k3s/containerd/io.containerd.runtime.v2.task/k8s.io/fd0637d0cda33e2e2bc78e3ba08cdeab10544449857bbcb3ccf54cab517ba1aa/rootfs/mnt/models/config: read-only file system: unknown
+      Exit Code:    128
+      Started:      Thu, 01 Jan 1970 01:00:00 +0100
+      Finished:     Mon, 17 Feb 2025 22:52:55 +0100
+    Ready:          False
+    Restart Count:  5
+    Limits:
+      cpu:     2
+      memory:  4Gi
+    Requests:
+      cpu:     1
+      memory:  2Gi
+    Environment:
+      S3_ENDPOINT:            minio-service.kubeflow:9000
+      S3_USE_HTTPS:           0
+      AWS_ACCESS_KEY_ID:      <set to the key 'AWS_ACCESS_KEY_ID' in secret 'minio-secret-kserve'>      Optional: false
+      AWS_SECRET_ACCESS_KEY:  <set to the key 'AWS_SECRET_ACCESS_KEY' in secret 'minio-secret-kserve'>  Optional: false
+      AWS_DEFAULT_REGION:     us-east-1
+      S3_VERIFY_SSL:          0
+      PROTOCOL_VERSION:       v2
+      TS_SERVICE_ENVELOPE:    kservev2
+      PORT:                   8080
+      K_REVISION:             yolov8-predictor-00001
+      K_CONFIGURATION:        yolov8-predictor
+      K_SERVICE:              yolov8-predictor
+    Mounts:
+      /mnt/models from kserve-provision-location (ro)
+      /mnt/models/config from config-volume (ro)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-kx8cw (ro)
+  queue-proxy:
+    Container ID:    containerd://b0e5f21baa924c3bdadc5f83e7f6acfb846cd66b216729b4701f09986623104e
+    Image:           gcr.io/knative-releases/knative.dev/serving/cmd/queue@sha256:c61042001b1f21c5d06bdee9b42b5e4524e4370e09d4f46347226f06db29ba0f
+    Image ID:        gcr.io/knative-releases/knative.dev/serving/cmd/queue@sha256:c61042001b1f21c5d06bdee9b42b5e4524e4370e09d4f46347226f06db29ba0f
+    Ports:           8022/TCP, 9090/TCP, 9091/TCP, 8012/TCP, 8112/TCP
+    Host Ports:      0/TCP, 0/TCP, 0/TCP, 0/TCP, 0/TCP
+    SeccompProfile:  RuntimeDefault
+    State:           Running
+      Started:       Mon, 17 Feb 2025 22:49:50 +0100
+    Ready:           False
+    Restart Count:   0
+    Requests:
+      cpu:      25m
+    Readiness:  http-get http://:15020/app-health/queue-proxy/readyz delay=0s timeout=1s period=10s #success=1 #failure=3
+    Environment:
+      SERVING_NAMESPACE:                                 kubeflow-user-example-com
+      SERVING_SERVICE:                                   yolov8-predictor
+      SERVING_CONFIGURATION:                             yolov8-predictor
+      SERVING_REVISION:                                  yolov8-predictor-00001
+      QUEUE_SERVING_PORT:                                8012
+      QUEUE_SERVING_TLS_PORT:                            8112
+      CONTAINER_CONCURRENCY:                             0
+      REVISION_TIMEOUT_SECONDS:                          300
+      REVISION_RESPONSE_START_TIMEOUT_SECONDS:           0
+      REVISION_IDLE_TIMEOUT_SECONDS:                     0
+      SERVING_POD:                                       yolov8-predictor-00001-deployment-8c6cd5b8d-7qjc7 (v1:metadata.name)
+      SERVING_POD_IP:                                     (v1:status.podIP)
+      SERVING_LOGGING_CONFIG:                            
+      SERVING_LOGGING_LEVEL:                             
+      SERVING_REQUEST_LOG_TEMPLATE:                      {"httpRequest": {"requestMethod": "{{.Request.Method}}", "requestUrl": "{{js .Request.RequestURI}}", "requestSize": "{{.Request.ContentLength}}", "status": {{.Response.Code}}, "responseSize": "{{.Response.Size}}", "userAgent": "{{js .Request.UserAgent}}", "remoteIp": "{{js .Request.RemoteAddr}}", "serverIp": "{{.Revision.PodIP}}", "referer": "{{js .Request.Referer}}", "latency": "{{.Response.Latency}}s", "protocol": "{{.Request.Proto}}"}, "traceId": "{{index .Request.Header "X-B3-Traceid"}}"}
+      SERVING_ENABLE_REQUEST_LOG:                        false
+      SERVING_REQUEST_METRICS_BACKEND:                   prometheus
+      SERVING_REQUEST_METRICS_REPORTING_PERIOD_SECONDS:  5
+      TRACING_CONFIG_BACKEND:                            none
+      TRACING_CONFIG_ZIPKIN_ENDPOINT:                    
+      TRACING_CONFIG_DEBUG:                              false
+      TRACING_CONFIG_SAMPLE_RATE:                        0.1
+      USER_PORT:                                         8080
+      SYSTEM_NAMESPACE:                                  knative-serving
+      METRICS_DOMAIN:                                    knative.dev/internal/serving
+      SERVING_READINESS_PROBE:                           {"tcpSocket":{"port":8080,"host":"127.0.0.1"},"successThreshold":1}
+      ENABLE_PROFILING:                                  false
+      SERVING_ENABLE_PROBE_REQUEST_LOG:                  false
+      METRICS_COLLECTOR_ADDRESS:                         
+      HOST_IP:                                            (v1:status.hostIP)
+      ENABLE_HTTP2_AUTO_DETECTION:                       false
+      ENABLE_HTTP_FULL_DUPLEX:                           false
+      ROOT_CA:                                           
+      ENABLE_MULTI_CONTAINER_PROBES:                     false
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-kx8cw (ro)
+  istio-proxy:
+    Container ID:  containerd://f6e2163e1415f42e27918ca11a39d722fabc24773a9460868ae7fa6ba51d11e5
+    Image:         docker.io/istio/proxyv2:1.23.2
+    Image ID:      docker.io/istio/proxyv2@sha256:2876cfc2fdf47e4b9665390ccc9ccf2bf913b71379325b8438135c9f35578e1a
+    Port:          15090/TCP
+    Host Port:     0/TCP
+    Args:
+      proxy
+      sidecar
+      --domain
+      $(POD_NAMESPACE).svc.cluster.local
+      --proxyLogLevel=warning
+      --proxyComponentLogLevel=misc:error
+      --log_output_level=default:info
+    State:          Running
+      Started:      Mon, 17 Feb 2025 22:49:51 +0100
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     2
+      memory:  1Gi
+    Requests:
+      cpu:      100m
+      memory:   128Mi
+    Readiness:  http-get http://:15021/healthz/ready delay=0s timeout=3s period=15s #success=1 #failure=4
+    Startup:    http-get http://:15021/healthz/ready delay=0s timeout=3s period=1s #success=1 #failure=600
+    Environment:
+      PILOT_CERT_PROVIDER:           istiod
+      CA_ADDR:                       istiod.istio-system.svc:15012
+      POD_NAME:                      yolov8-predictor-00001-deployment-8c6cd5b8d-7qjc7 (v1:metadata.name)
+      POD_NAMESPACE:                 kubeflow-user-example-com (v1:metadata.namespace)
+      INSTANCE_IP:                    (v1:status.podIP)
+      SERVICE_ACCOUNT:                (v1:spec.serviceAccountName)
+      HOST_IP:                        (v1:status.hostIP)
+      ISTIO_CPU_LIMIT:               2 (limits.cpu)
+      PROXY_CONFIG:                  {"tracing":{}}
+                                     
+      ISTIO_META_POD_PORTS:          [
+                                         {"name":"user-port","containerPort":8080,"protocol":"TCP"}
+                                         ,{"name":"http-queueadm","containerPort":8022,"protocol":"TCP"}
+                                         ,{"name":"http-autometric","containerPort":9090,"protocol":"TCP"}
+                                         ,{"name":"http-usermetric","containerPort":9091,"protocol":"TCP"}
+                                         ,{"name":"queue-port","containerPort":8012,"protocol":"TCP"}
+                                         ,{"name":"https-port","containerPort":8112,"protocol":"TCP"}
+                                     ]
+      ISTIO_META_APP_CONTAINERS:     kserve-container,queue-proxy
+      GOMEMLIMIT:                    1073741824 (limits.memory)
+      GOMAXPROCS:                    2 (limits.cpu)
+      ISTIO_META_CLUSTER_ID:         Kubernetes
+      ISTIO_META_NODE_NAME:           (v1:spec.nodeName)
+      ISTIO_META_INTERCEPTION_MODE:  REDIRECT
+      ISTIO_META_WORKLOAD_NAME:      yolov8-predictor-00001-deployment
+      ISTIO_META_OWNER:              kubernetes://apis/apps/v1/namespaces/kubeflow-user-example-com/deployments/yolov8-predictor-00001-deployment
+      ISTIO_META_MESH_ID:            cluster.local
+      TRUST_DOMAIN:                  cluster.local
+      ISTIO_KUBE_APP_PROBERS:        {"/app-health/queue-proxy/readyz":{"httpGet":{"path":"/","port":8012,"scheme":"HTTP","httpHeaders":[{"name":"K-Network-Probe","value":"queue"}]},"timeoutSeconds":1}}
+    Mounts:
+      /etc/istio/pod from istio-podinfo (rw)
+      /etc/istio/proxy from istio-envoy (rw)
+      /var/lib/istio/data from istio-data (rw)
+      /var/run/secrets/credential-uds from credential-socket (rw)
+      /var/run/secrets/istio from istiod-ca-cert (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-kx8cw (ro)
+      /var/run/secrets/tokens from istio-token (rw)
+      /var/run/secrets/workload-spiffe-credentials from workload-certs (rw)
+      /var/run/secrets/workload-spiffe-uds from workload-socket (rw)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  workload-socket:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  credential-socket:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  workload-certs:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  istio-envoy:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     Memory
+    SizeLimit:  <unset>
+  istio-data:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  istio-podinfo:
+    Type:  DownwardAPI (a volume populated by information about the pod)
+    Items:
+      metadata.labels -> labels
+      metadata.annotations -> annotations
+  istio-token:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  43200
+  istiod-ca-cert:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      istio-ca-root-cert
+    Optional:  false
+  config-volume:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      yolov8-config
+    Optional:  false
+  kube-api-access-kx8cw:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+  kserve-provision-location:
+    Type:        EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:      
+    SizeLimit:   <unset>
+QoS Class:       Burstable
+Node-Selectors:  <none>
+Tolerations:     node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                 node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                    From               Message
+  ----     ------     ----                   ----               -------
+  Normal   Scheduled  4m32s                  default-scheduler  Successfully assigned kubeflow-user-example-com/yolov8-predictor-00001-deployment-8c6cd5b8d-7qjc7 to pear
+  Normal   Pulled     4m33s                  kubelet            Container image "kserve/storage-initializer:v0.14.0" already present on machine
+  Normal   Created    4m33s                  kubelet            Created container storage-initializer
+  Normal   Started    4m32s                  kubelet            Started container storage-initializer
+  Normal   Pulled     4m24s                  kubelet            Container image "docker.io/istio/proxyv2:1.23.2" already present on machine
+  Normal   Created    4m24s                  kubelet            Created container istio-init
+  Normal   Started    4m24s                  kubelet            Started container istio-init
+  Normal   Started    4m23s                  kubelet            Started container queue-proxy
+  Normal   Pulled     4m23s                  kubelet            Container image "gcr.io/knative-releases/knative.dev/serving/cmd/queue@sha256:c61042001b1f21c5d06bdee9b42b5e4524e4370e09d4f46347226f06db29ba0f" already present on machine
+  Normal   Created    4m23s                  kubelet            Created container queue-proxy
+  Normal   Pulled     4m23s                  kubelet            Container image "docker.io/istio/proxyv2:1.23.2" already present on machine
+  Normal   Created    4m23s                  kubelet            Created container istio-proxy
+  Normal   Created    4m22s (x2 over 4m23s)  kubelet            Created container kserve-container
+  Warning  Failed     4m22s (x2 over 4m23s)  kubelet            Error: failed to create containerd task: failed to create shim task: OCI runtime create failed: runc create failed: unable to start container process: error during container init: error mounting "/var/lib/kubelet/pods/9053e334-151d-424c-8667-38f8bebf1aa9/volumes/kubernetes.io~configmap/config-volume" to rootfs at "/mnt/models/config": create mountpoint for /mnt/models/config mount: mkdirat /run/k3s/containerd/io.containerd.runtime.v2.task/k8s.io/kserve-container/rootfs/mnt/models/config: read-only file system: unknown
+  Normal   Pulled     4m22s (x2 over 4m23s)  kubelet            Container image "index.docker.io/pytorch/torchserve-kfs@sha256:d6cfdac5d83007932aa7bfb29ec42858fbc5cd48b9a6f4a7f68088a5c3bde07e" already present on machine
+  Normal   Started    4m22s                  kubelet            Started container istio-proxy
+  Warning  BackOff    4m19s (x3 over 4m21s)  kubelet            Back-off restarting failed container kserve-container in pod yolov8-predictor-00001-deployment-8c6cd5b8d-7qjc7_kubeflow-user-example-com(9053e334-151d-424c-8667-38f8bebf1aa9)
+  Warning  Unhealthy  4m18s (x4 over 4m21s)  kubelet            Readiness probe failed: Get "http://10.42.0.150:15020/app-health/queue-proxy/readyz": context deadline exceeded (Client.Timeout exceeded while awaiting headers)

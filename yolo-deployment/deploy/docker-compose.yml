@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  model_builder:
+    build:
+      context: .
+      dockerfile: Dockerfile.model
+    volumes:
+      - ./model_store:/app/model_store
+      - ../model:/app/model
+
+  torchserve:
+    build:
+      context: .
+      dockerfile: Dockerfile.serve
+    ports:
+      - "0.0.0.0:8080:8080"  # inference API
+      - "0.0.0.0:8081:8081"  # management API
+      - "0.0.0.0:8082:8082"  # metrics API
+    volumes:
+      - ./model_store:/home/model-server/model-store
+    depends_on:
+      - model_builder
