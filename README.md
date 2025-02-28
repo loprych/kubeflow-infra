@@ -360,17 +360,12 @@ grpc_inference_port=7070
 grpc_management_port=7071
 enable_metrics_api=true
 metrics_format=prometheus
-number_of_netty_threads=4
 job_queue_size=100
 enable_envvars_config=true
 install_py_dep_per_model=true
 model_store=/mnt/models/model-store
 default_response_timeout=600
 service_envelope=kserve
-max_response_size=20971520
-max_request_size=20971520
-initial_heap_size=2g
-maximum_heap_size=4g
 model_snapshot={"name":"startup.cfg","modelCount":1,"models":{"yolo_model":{"1.0":{"defaultVersion":true,"marName":"yolo_model.mar","minWorkers":1,"maxWorkers":5,"batchSize":1,"maxBatchDelay":100,"responseTimeout":600}}}}
 ```
 ```bash
@@ -408,7 +403,6 @@ sudo rm -rf /var/lib/rancher
 sudo rm -rf /etc/rancher
 ```
 
-
 ``bash
 kubectl port-forward svc/istio-ingressgateway -n istio-system 8080:80
 
@@ -429,12 +423,3 @@ kubectl logs -n oauth2-proxy -l app.kubernetes.io/name=oauth2-proxy
 kubectl logs -n kubeflow -l app=centraldashboard
 kubectl get pods -A
 ```
-
-### fix
-cpu 300% 
-```bash
-ps aux | grep apiserver
-```
-```bash
-sudo kill <process-number>
-``
