@@ -165,7 +165,7 @@ kubectl kustomize pipeline/overlays/ui-customization | kubectl apply -f -
 
 8. Knative install:
 ```bash
-kubectl kustomize knative/base/components/serving | kubectl apply -f -
+kubectl kustomize knative/base | kubectl apply -f -
 
 kubectl apply --filename https://github.com/knative/eventing/releases/download/knative-v1.16.1/eventing-crds.yaml
 
