@@ -173,6 +173,7 @@ kubectl kustomize pipeline/base | kubectl delete -f -
 kubectl kustomize pipeline/base | kubectl apply -f -
 
 kubectl kustomize pipeline/overlays/ui-customization | kubectl apply -f -
+kubectl kustomize pipeline/overlays/ml-pipeline-minio-artifact | kubectl apply -f -
 ```
 
 7. Knative install:
