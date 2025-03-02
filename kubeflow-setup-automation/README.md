@@ -97,7 +97,12 @@
 
 ## Environment preparation
 
- Check kubectl:
+1. Install k3s:
+```bash
+./scripts/install-k3s.sh
+```   
+
+2. Check kubectl:
 ```bash
 kubectl version
 ```
@@ -190,7 +195,7 @@ kubectl kustomize kserve/overlays/default/ | kubectl apply -f -
 
 1. Check state of pods in key namespaces:
 ```bash
-for ns in kubeflow istio-system cert-manager auth; do
+for ns in kubeflow kubeflow-user-example-com istio-system cert-manager oauth2-proxy knative-serving knative-eventing auth; do
   echo "Checking namespace: $ns"
   kubectl get pods -n $ns
 done
@@ -210,6 +215,9 @@ kubectl get pods -n kubeflow | grep kserve
 
 4. MinIO access
 ```bash
+kubectl get secret mlpipeline-minio-artifact -n kubeflow -o jsonpath='{.data.accesskey}' | base64 --decode
+kubectl get secret mlpipeline-minio-artifact -n kubeflow -o jsonpath='{.data.secretkey}' | base64 --decode
+
 kubectl port-forward -n kubeflow svc/minio-service 9000:9000
 ```
 Open https://localhost:9000
