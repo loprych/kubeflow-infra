@@ -89,21 +89,17 @@
 └── scripts
     ├── apply-knative-eventing.sh
     ├── apply-kserve.sh
-    └── generate-certs.sh
+    ├── generate-certs.sh
+    ├── install-k3s.sh
+    └── uninstall-k3s.sh
+
 ```
 
 ## Environment preparation
 
-1. Check kubectl:
+ Check kubectl:
 ```bash
 kubectl version
-```
-
-2. Prepare scripts:
-```bash
-chmod +x scripts/generate-certs.sh
-chmod +x scripts/apply-knative-eventing.sh
-chmod +x scripts/apply-kserve.sh
 ```
 
 ## Installation
@@ -134,26 +130,37 @@ kubectl kustomize infrastructure/overlays/nodeport/ | kubectl apply -f -
 3. Instalacja core components:
 ```bash
 kubectl kustomize core/base | kubectl apply -f -
+
+kubectl wait --for=condition=Available --timeout=300s -n kubeflow deployment/centraldashboard
+kubectl wait --for=condition=Available --timeout=300s -n kubeflow deployment/profiles-deployment
 ```
 
-4. Notebook components install:
-```bash
-kubectl kustomize notebooks/base | kubectl apply -f -
-```
-
-5. HTTPS configuration:
+4. HTTPS configuration:
 ```bash
 ./scripts/generate-certs.sh
 kubectl kustomize https-config/overlays/gateway-https | kubectl apply -f -
 kubectl wait --for=condition=Ready --timeout=300s -n istio-system certificate/kubeflow-tls
 ```
 
-6. ML Components install:
+5. ML Components install:
 ```bash
 kubectl kustomize ml-components/base | kubectl apply -f -
+
+kubectl wait --for=condition=Available --timeout=300s -n kubeflow deployment/admission-webhook-deployment
+kubectl wait --for=condition=Available --timeout=300s -n kubeflow deployment/jupyter-web-app-deployment
+kubectl wait --for=condition=Available --timeout=300s -n kubeflow deployment/katib-controller
+kubectl wait --for=condition=Available --timeout=300s -n kubeflow deployment/katib-db-manager
+kubectl wait --for=condition=Available --timeout=300s -n kubeflow deployment/katib-mysql
+kubectl wait --for=condition=Available --timeout=300s -n kubeflow deployment/katib-ui
+kubectl wait --for=condition=Available --timeout=300s -n kubeflow deployment/notebook-controller-deployment
+kubectl wait --for=condition=Available --timeout=300s -n kubeflow deployment/profiles-deployment
+kubectl wait --for=condition=Available --timeout=300s -n kubeflow deployment/pvcviewer-controller-manager
+kubectl wait --for=condition=Available --timeout=300s -n kubeflow deployment/tensorboard-controller-deployment
+kubectl wait --for=condition=Available --timeout=300s -n kubeflow deployment/tensorboards-web-app-deployment
+kubectl wait --for=condition=Available --timeout=300s -n kubeflow deployment/volumes-web-app-deployment
 ```
 
-7. Pipeline install and ml-pipeline-ui customization:
+6. Pipeline install and ml-pipeline-ui customization:
 ```bash
 kubectl kustomize pipeline/base | kubectl apply -f -
 # In case of issues with ml-pipeline pod crashloopback, reapply may be needed
@@ -163,7 +170,7 @@ kubectl kustomize pipeline/base | kubectl apply -f -
 kubectl kustomize pipeline/overlays/ui-customization | kubectl apply -f -
 ```
 
-8. Knative install:
+7. Knative install:
 ```bash
 kubectl kustomize knative/base | kubectl apply -f -
 
@@ -172,7 +179,7 @@ kubectl apply --filename https://github.com/knative/eventing/releases/download/k
 kubectl apply --filename https://github.com/knative/eventing/releases/download/knative-v1.16.1/eventing-core.yaml
 ```
 
-9. KServe install:
+8. KServe install:
 ```bash
 kubectl kustomize kserve/base/components/core | kubectl apply --server-side --force-conflicts -f -
 
