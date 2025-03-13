@@ -1,0 +1,136 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kfp-webhook-code
+  namespace: kubeflow-user-example-com
+data:
+  webhook.py: |
+    import os
+    import sys
+    import json
+    import logging
+    from flask import Flask, request, jsonify
+
+    # Setup detailed logging first
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        stream=sys.stdout  # Explicitly log to stdout
+    )
+    logger = logging.getLogger(__name__)
+
+    # Log Python and package versions
+    logger.info(f"Python version: {sys.version}")
+    logger.info(f"Python path: {sys.path}")
+    
+    # Log startup information
+    logger.info("Starting webhook service...")
+    logger.info(f"Current working directory: {os.getcwd()}")
+    
+    # Import KFP with error handling
+    try:
+        import kfp
+        logger.info(f"KFP version: {kfp.__version__}")
+    except Exception as e:
+        logger.error(f"Error importing KFP: {str(e)}")
+        raise
+
+    app = Flask(__name__)
+
+    # Default namespace - can be overridden by environment variable
+    DEFAULT_NAMESPACE = os.getenv("KF_NAMESPACE", "kubeflow-user-example-com")
+    logger.info(f"Using default namespace: {DEFAULT_NAMESPACE}")
+    
+    # Log the token path
+    token_path = os.getenv("KF_PIPELINES_SA_TOKEN_PATH", "/var/run/secrets/kubeflow/pipelines/token")
+    logger.info(f"Token path: {token_path}")
+    logger.info(f"Token exists: {os.path.exists(token_path)}")
+
+    @app.route('/health', methods=['GET'])
+    def health_check():
+        """Health check endpoint"""
+        logger.info("Health check endpoint called")
+        return jsonify({"status": "ok"})
+
+    @app.route('/trigger/<pipeline_name>', methods=['POST'])
+    def trigger_pipeline(pipeline_name):
+        """
+        Trigger a Kubeflow pipeline execution
+        
+        POST data should be a JSON with parameters for the pipeline
+        """
+        logger.info(f"Trigger endpoint called for pipeline: {pipeline_name}")
+        try:
+            # Get parameters from request body
+            if request.is_json:
+                params = request.json
+            else:
+                params = {}
+                
+            namespace = params.pop('namespace', DEFAULT_NAMESPACE)
+            experiment_name = params.pop('experiment_name', f"{pipeline_name}-experiment")
+            run_name = params.pop('run_name', None)
+                
+            logger.info(f"Triggering pipeline '{pipeline_name}' in namespace '{namespace}'")
+            logger.info(f"Parameters: {params}")
+            
+            # Create KFP client with debug information
+            logger.info("Creating KFP client...")
+            client = kfp.Client()
+            logger.info("KFP client created successfully")
+            
+            # Get the pipeline by name
+            logger.info("Listing pipelines...")
+            pipelines = client.list_pipelines(page_size=100)
+            logger.info(f"Found {len(pipelines.pipelines) if pipelines.pipelines else 0} pipelines")
+            
+            pipeline_id = None
+            for p in pipelines.pipelines:
+                logger.info(f"Checking pipeline: {p.name} (ID: {p.id})")
+                if p.name == pipeline_name:
+                    pipeline_id = p.id
+                    break
+                    
+            if not pipeline_id:
+                logger.error(f"Pipeline '{pipeline_name}' not found")
+                return jsonify({"error": f"Pipeline '{pipeline_name}' not found"}), 404
+                
+            logger.info(f"Found pipeline ID: {pipeline_id}")
+                
+            # Create experiment if it doesn't exist
+            try:
+                logger.info(f"Getting experiment: {experiment_name}")
+                experiment = client.get_experiment(experiment_name=experiment_name, namespace=namespace)
+                logger.info(f"Found experiment: {experiment.id}")
+            except Exception as e:
+                logger.info(f"Experiment not found, creating new one. Error: {str(e)}")
+                experiment = client.create_experiment(name=experiment_name, namespace=namespace)
+                logger.info(f"Created experiment: {experiment.id}")
+            
+            # Create run
+            logger.info("Creating pipeline run...")
+            run = client.run_pipeline(
+                experiment_id=experiment.id,
+                job_name=run_name or f"{pipeline_name}-run-{os.urandom(4).hex()}",
+                pipeline_id=pipeline_id,
+                params=params
+            )
+            
+            logger.info(f"Pipeline run created: {run.id}")
+            
+            return jsonify({
+                "status": "success",
+                "run_id": run.id,
+                "run_url": f"/pipeline/runs/details/{run.id}"
+            })
+            
+        except Exception as e:
+            logger.exception(f"Error triggering pipeline: {str(e)}")
+            return jsonify({"error": str(e)}), 500
+
+    if __name__ == "__main__":
+        # Run the Flask app with debug logs
+        logger.info("Starting Flask application...")
+        port = int(os.environ.get("PORT", 5000))
+        logger.info(f"Flask will listen on 0.0.0.0:{port}")
+        app.run(host="0.0.0.0", port=port, debug=True)

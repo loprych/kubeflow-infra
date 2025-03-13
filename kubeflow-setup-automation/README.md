@@ -20,8 +20,7 @@
 │   ├── base
 │   │   ├── cluster-issuer.yaml
 │   │   ├── kubeflow-certificate.yaml
-│   │   ├── kustomization.yaml
-│   │   └── tls-secret.yaml
+│   │   └── kustomization.yaml
 │   └── overlays
 │       └── gateway-https
 │           ├── kustomization.yaml
@@ -78,31 +77,25 @@
 │   │       ├── minio-rbac.yaml
 │   │       ├── minio-secret-kserve.yaml
 │   │       ├── minio-service.yaml
-│   │       ├── mlpipeline-minio-artifact.yaml
 │   │       └── poddefault.yaml
 │   └── overlays
+│       ├── ml-pipeline-minio-artifact
+│       │   ├── kustomization.yaml
+│       │   └── patches
+│       │       └── mlpipeline-minio-artifact.yaml
 │       └── ui-customization
 │           ├── kustomization.yaml
 │           └── patches
-│               └── ml-pipeline-ui-deployment.yaml
+│               └── mlpipeline-ui-deployment.yaml
 ├── README.md
 └── scripts
-    ├── apply-knative-eventing.sh
-    ├── apply-kserve.sh
-    ├── generate-certs.sh
     ├── install-k3s.sh
     └── uninstall-k3s.sh
-
 ```
 
 ## Environment preparation
 
-1. Install k3s:
-```bash
-./scripts/install-k3s.sh
-```   
-
-2. Check kubectl:
+1. Check kubectl:
 ```bash
 kubectl version
 ```
@@ -135,60 +128,48 @@ kubectl kustomize infrastructure/overlays/nodeport/ | kubectl apply -f -
 3. Instalacja core components:
 ```bash
 kubectl kustomize core/base | kubectl apply -f -
-
-kubectl wait --for=condition=Available --timeout=300s -n kubeflow deployment/centraldashboard
-kubectl wait --for=condition=Available --timeout=300s -n kubeflow deployment/profiles-deployment
 ```
 
-4. HTTPS configuration:
+4. Notebook components install:
 ```bash
-./scripts/generate-certs.sh
+kubectl kustomize notebooks/base | kubectl apply -f -
+```
+
+5. HTTPS configuration:
+```bash
 kubectl kustomize https-config/overlays/gateway-https | kubectl apply -f -
 kubectl wait --for=condition=Ready --timeout=300s -n istio-system certificate/kubeflow-tls
 ```
 
-5. ML Components install:
+6. ML Components install:
 ```bash
 kubectl kustomize ml-components/base | kubectl apply -f -
-
-kubectl wait --for=condition=Available --timeout=300s -n kubeflow deployment/admission-webhook-deployment
-kubectl wait --for=condition=Available --timeout=300s -n kubeflow deployment/jupyter-web-app-deployment
-kubectl wait --for=condition=Available --timeout=300s -n kubeflow deployment/katib-controller
-kubectl wait --for=condition=Available --timeout=300s -n kubeflow deployment/katib-db-manager
-kubectl wait --for=condition=Available --timeout=300s -n kubeflow deployment/katib-mysql
-kubectl wait --for=condition=Available --timeout=300s -n kubeflow deployment/katib-ui
-kubectl wait --for=condition=Available --timeout=300s -n kubeflow deployment/notebook-controller-deployment
-kubectl wait --for=condition=Available --timeout=300s -n kubeflow deployment/profiles-deployment
-kubectl wait --for=condition=Available --timeout=300s -n kubeflow deployment/pvcviewer-controller-manager
-kubectl wait --for=condition=Available --timeout=300s -n kubeflow deployment/tensorboard-controller-deployment
-kubectl wait --for=condition=Available --timeout=300s -n kubeflow deployment/tensorboards-web-app-deployment
-kubectl wait --for=condition=Available --timeout=300s -n kubeflow deployment/volumes-web-app-deployment
 ```
 
-6. Pipeline install and ml-pipeline-ui customization:
+7. Pipeline install and ml-pipeline-ui customization:
 ```bash
 kubectl kustomize pipeline/base | kubectl apply -f -
 # In case of issues with ml-pipeline pod crashloopback, reapply may be needed
 kubectl kustomize pipeline/base | kubectl delete -f -
 kubectl kustomize pipeline/base | kubectl apply -f -
 
-kubectl kustomize pipeline/overlays/ui-customization | kubectl apply -f -
 kubectl kustomize pipeline/overlays/ml-pipeline-minio-artifact | kubectl apply -f -
+
+kubectl kustomize pipeline/overlays/ui-customization | kubectl apply -f -
 ```
 
-7. Knative install:
+8. Knative install:
 ```bash
-kubectl kustomize knative/base | kubectl apply -f -
+kubectl kustomize knative/base/components/serving | kubectl apply -f -
 
 kubectl apply --filename https://github.com/knative/eventing/releases/download/knative-v1.16.1/eventing-crds.yaml
 
 kubectl apply --filename https://github.com/knative/eventing/releases/download/knative-v1.16.1/eventing-core.yaml
 ```
 
-8. KServe install:
+9. KServe install:
 ```bash
 kubectl kustomize kserve/base/components/core | kubectl apply --server-side --force-conflicts -f -
-
 kubectl kustomize kserve/overlays/default/ | kubectl apply -f -
 ```
 
@@ -196,7 +177,7 @@ kubectl kustomize kserve/overlays/default/ | kubectl apply -f -
 
 1. Check state of pods in key namespaces:
 ```bash
-for ns in kubeflow kubeflow-user-example-com istio-system cert-manager oauth2-proxy knative-serving knative-eventing auth; do
+for ns in kubeflow istio-system cert-manager auth; do
   echo "Checking namespace: $ns"
   kubectl get pods -n $ns
 done
@@ -216,9 +197,6 @@ kubectl get pods -n kubeflow | grep kserve
 
 4. MinIO access
 ```bash
-kubectl get secret mlpipeline-minio-artifact -n kubeflow -o jsonpath='{.data.accesskey}' | base64 --decode
-kubectl get secret mlpipeline-minio-artifact -n kubeflow -o jsonpath='{.data.secretkey}' | base64 --decode
-
 kubectl port-forward -n kubeflow svc/minio-service 9000:9000
 ```
 Open https://localhost:9000

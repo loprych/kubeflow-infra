@@ -1,0 +1,26 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: pipeline-runner-role
+  namespace: kubeflow
+rules:
+- apiGroups: ["kubeflow.org"]
+  resources: ["pipelines", "runs", "experiments"]
+  verbs: ["get", "list", "create", "update", "delete"]
+- apiGroups: [""]
+  resources: ["pods", "pods/log"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: pipeline-runner-binding
+  namespace: kubeflow
+subjects:
+- kind: ServiceAccount
+  name: pipeline-runner-sa
+  namespace: kubeflow-user-example-com
+roleRef:
+  kind: Role
+  name: pipeline-runner-role
+  apiGroup: rbac.authorization.k8s.io

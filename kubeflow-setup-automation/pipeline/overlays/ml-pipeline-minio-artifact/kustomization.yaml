@@ -3,6 +3,4 @@ kind: Kustomization
 
 resources:
 - ../../base
-
-patches:
-- path: patches/mlpipeline-minio-artifact.yaml
+- patches/mlpipeline-minio-artifact.yaml

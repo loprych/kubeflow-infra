@@ -1,0 +1,91 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kfp-webhook
+  namespace: kubeflow-user-example-com
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kfp-webhook
+  template:
+    metadata:
+      labels:
+        app: kfp-webhook
+    spec:
+      serviceAccountName: kfp-webhook
+      containers:
+      - name: kfp-webhook
+        image: python:3.9-slim
+        command: 
+        - "/bin/bash"
+        - "-c"
+        args:
+        - |
+          set -e
+          # Update packages and install dependencies
+          apt-get update && apt-get install -y curl procps
+          
+          # Display Python version
+          python --version
+          
+          # Install Python dependencies with detailed output
+          pip install --verbose flask kfp==2.3.0 requests kubernetes
+          
+          # Create app directory
+          mkdir -p /app
+          
+          # Write webhook code from ConfigMap
+          echo "$WEBHOOK_CODE" > /app/webhook.py
+          
+          # Debug: list the files
+          ls -la /app
+          cat /app/webhook.py
+          
+          # Debug: show environment
+          echo "Environment variables:"
+          env | sort
+          
+          # Debug: check token file
+          echo "Checking token file:"
+          ls -la /var/run/secrets/kubeflow/pipelines/
+          
+          # Change to app directory
+          cd /app
+          
+          # Debug message before starting app
+          echo "Starting Flask application at $(date)..."
+          
+          # Run with Python (not with Flask development server)
+          python -u webhook.py
+        ports:
+        - containerPort: 5000
+        env:
+        - name: KF_NAMESPACE
+          value: "kubeflow-user-example-com"
+        - name: KF_PIPELINES_SA_TOKEN_PATH
+          value: /var/run/secrets/kubeflow/pipelines/token
+        - name: WEBHOOK_CODE
+          valueFrom:
+            configMapKeyRef:
+              name: kfp-webhook-code
+              key: webhook.py
+        volumeMounts:
+        - mountPath: /var/run/secrets/kubeflow/pipelines
+          name: kfp-token-volume
+          readOnly: true
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "300m"
+      volumes:
+      - name: kfp-token-volume
+        projected:
+          sources:
+          - serviceAccountToken:
+              path: token
+              expirationSeconds: 7200
+              audience: pipelines.kubeflow.org

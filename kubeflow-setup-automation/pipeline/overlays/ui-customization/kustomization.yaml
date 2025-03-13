@@ -5,4 +5,4 @@ resources:
 - ../../base
 
 patches:
-- path: patches/ml-pipeline-ui-deployment.yaml
+- path: patches/mlpipeline-ui-deployment.yaml

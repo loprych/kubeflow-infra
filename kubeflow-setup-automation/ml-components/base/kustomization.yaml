@@ -4,3 +4,8 @@ resources:
 - ../../../manifests/apps/tensorboard/tensorboards-web-app/upstream/overlays/istio
 - ../../../manifests/apps/tensorboard/tensorboard-controller/upstream/overlays/kubeflow
 - ../../../manifests/apps/katib/upstream/installs/katib-with-kubeflow
+- ../../../manifests/apps/jupyter/notebook-controller/upstream/overlays/kubeflow
+- ../../../manifests/apps/jupyter/jupyter-web-app/upstream/overlays/istio
+- ../../../manifests/apps/pvcviewer-controller/upstream/base
+- ../../../manifests/apps/volumes-web-app/upstream/overlays/istio
+- ../../../manifests/apps/admission-webhook/upstream/overlays/cert-manager
