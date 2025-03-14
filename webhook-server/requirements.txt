@@ -1,5 +1,5 @@
 flask==3.0.0
 kfp==2.9.0
-requests==2.31.0
+requests==2.32.3
 gunicorn==22.0.0
 kubernetes==31.0.0
