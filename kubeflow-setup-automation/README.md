@@ -199,6 +199,4 @@ kubectl get pods -n kubeflow | grep kserve
 ```bash
 kubectl port-forward -n kubeflow svc/minio-service 9000:9000
 ```
-Open https://localhost:9000
-
 
