@@ -1,9 +1,13 @@
+
+
 # Manual Setup
 
 ## install k3s
 ```bash
 curl -sfL https://get.k3s.io | sh -
 ```
+
+## Prepare kubeconfig
 ```bash
 export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 sudo chmod 644 /etc/rancher/k3s/k3s.yaml
@@ -90,7 +94,6 @@ kubectl patch svc istio-ingressgateway -n istio-system \
 ```bash
 kubectl port-forward svc/istio-ingressgateway -n istio-system 8080:80
 ```
-# DASHBOARD DONE
 
 # NOTEBOOKS
 
@@ -163,32 +166,7 @@ kubectl edit gateway kubeflow-gateway -n kubeflow
 ```
 
 ```yaml
-# Please edit the object below. Lines beginning with a '#' will be ignored,
-# and an empty file will abort the edit. If an error occurs while saving this file will be
-# reopened with the relevant failures.
-#
-apiVersion: networking.istio.io/v1
-kind: Gateway
-metadata:
-  annotations:
-    kubectl.kubernetes.io/last-applied-configuration: |
-      {"apiVersion":"networking.istio.io/v1alpha3","kind":"Gateway","metadata":{"annotations":{},"name":"kubeflow-gateway","namespace":"kubeflow"},"spec":{"selector":{"istio":"ingressgateway"},>
-  creationTimestamp: "2025-01-16T14:55:17Z"
-  generation: 1
-  name: kubeflow-gateway
-  namespace: kubeflow
-  resourceVersion: "1548"
-  uid: ede4216f-ff9d-45df-9637-99954b1865e6
-spec:
-  selector:
-    istio: ingressgateway
-  servers:
-  - hosts:
-    - '*'
-    port:
-      name: http
-      number: 80
-      protocol: HTTP
+# Add section:
   - hosts:
     - '*' 
     port:
@@ -226,16 +204,11 @@ kubectl apply -f cluster-issuer.yaml
 kubectl apply -f kubeflow-certificate.yaml
 
 kubectl port-forward svc/istio-ingressgateway -n istio-system 8443:443
-Forwarding from 127.0.0.1:8443 -> 8443
-Forwarding from [::1]:8443 -> 8443
+
 kubectl get svc istio-ingressgateway -n istio-system
 ```
 
-https://kubeflow.local:<port-number>
-
-# https done
-
-# rest of apps
+# Machine Learning apps
 ## tensorboard web app
 ```bash
 cd ~/manifests/apps/tensorboard/tensorboards-web-app/upstream/overlays/istio
@@ -265,14 +238,6 @@ kubectl kustomize . | kubectl apply -f -
 ## pipelines
 ```bash
 cd ~/manifests/apps/pipeline/upstream/env/cert-manager/platform-agnostic-multi-user
-kubectl kustomize . | kubectl apply -f -
-```
-
-### fix pipeline pods startup fail
-```bash
-kubectl kustomize . | kubectl delete -f -
-```
-```bash
 kubectl kustomize . | kubectl apply -f -
 ```
 
@@ -314,7 +279,6 @@ kubectl kustomize . | kubectl apply -f -
 kubectl apply --filename https://github.com/knative/eventing/releases/download/knative-v1.16.1/eventing-crds.yaml
 kubectl apply --filename https://github.com/knative/eventing/releases/download/knative-v1.16.1/eventing-core.yaml
 ```
-
 
 ## kserve
 ```bash
@@ -403,16 +367,14 @@ sudo /usr/local/bin/k3s-uninstall.sh
 sudo rm -rf /var/lib/rancher
 sudo rm -rf /etc/rancher
 ```
-
+### to get platform HTTPS port
 ``bash
-kubectl port-forward svc/istio-ingressgateway -n istio-system 8080:80
-
 kubectl patch svc istio-ingressgateway -n istio-system \
   -p '{"spec": {"type": "NodePort"}}'
 
 kubectl get svc istio-ingressgateway -n istio-system -o yaml
 ```
-### check commands 
+## Setup check commands 
 ```bash
 kubectl get svc istio-ingressgateway -n istio-system -o yaml
 curl -v http://10.42.0.22:8081/kfam
