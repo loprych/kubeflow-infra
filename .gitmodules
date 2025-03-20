@@ -1,0 +1,3 @@
+[submodule "kfp-repo"]
+	path = kfp-repo
+	url = https://github.com/loprych/kfp-repo
