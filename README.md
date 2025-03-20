@@ -1,6 +1,9 @@
+#Kubeflow deployment 
+
+### 👉 [Automated setup — kubeflow-setup-automation](https://github.com/loprych/kubeflow-infra/tree/main/kubeflow-setup-automation)
 
 
-# Manual Setup
+## Manual Setup
 
 ## install k3s
 ```bash
