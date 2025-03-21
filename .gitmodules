@@ -1,3 +1,6 @@
 [submodule "kfp-repo"]
 	path = kfp-repo
 	url = https://github.com/loprych/kfp-repo
+[submodule "kubeflow-manifests"]
+	path = kubeflow-manifests
+	url = https://github.com/kubeflow/manifests

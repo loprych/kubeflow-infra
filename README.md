@@ -1,5 +1,7 @@
 # Kubeflow deployment 
 
+Deployment based on official manifests from Kubeflow/manifests repository
+
 ![Kubeflow Platform](https://github.com/loprych/kubeflow-infra/raw/main/kubeflowplatform.png)
 
 ### 👉 [Automated setup — kubeflow-setup-automation](https://github.com/loprych/kubeflow-infra/tree/main/kubeflow-setup-automation)
@@ -338,9 +340,11 @@ default_response_timeout=600
 service_envelope=kserve
 model_snapshot={"name":"startup.cfg","modelCount":1,"models":{"yolo_model":{"1.0":{"defaultVersion":true,"marName":"yolo_model.mar","minWorkers":1,"maxWorkers":5,"batchSize":1,"maxBatchDelay":100,"responseTimeout":600}}}}
 ```
+
 ```bash
 kubectl apply -f inferenceservice.yaml
 ```
+
 ```bash
 kubectl get pods -n kubeflow-user-example-com -l serving.kserve.io/inferenceservice=yolov8
 ```
