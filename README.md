@@ -1,4 +1,4 @@
-# Kubeflow deployment 
+# Kubeflow deployment on k3s cluster
 
 Deployment based on official manifests from [Kubeflow/manifests repo](https://github.com/kubeflow/manifests)
 
