@@ -1,6 +1,6 @@
 # Kubeflow deployment 
 
-Deployment based on official manifests from Kubeflow/manifests repository
+Deployment based on official manifests from ![Kubeflow/manifests repo](https://github.com/kubeflow/manifests)
 
 ![Kubeflow Platform](https://github.com/loprych/kubeflow-infra/raw/main/kubeflowplatform.png)
 
