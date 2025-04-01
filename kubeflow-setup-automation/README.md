@@ -125,7 +125,7 @@ kubectl wait --for=condition=Available --timeout=300s -n oauth2-proxy deployment
 kubectl kustomize infrastructure/overlays/nodeport/ | kubectl apply -f -
 ```
 
-3. Instalacja core components:
+3. Installation of core components:
 ```bash
 kubectl kustomize core/base | kubectl apply -f -
 ```
