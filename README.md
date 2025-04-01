@@ -340,11 +340,10 @@ default_response_timeout=600
 service_envelope=kserve
 model_snapshot={"name":"startup.cfg","modelCount":1,"models":{"yolo_model":{"1.0":{"defaultVersion":true,"marName":"yolo_model.mar","minWorkers":1,"maxWorkers":5,"batchSize":1,"maxBatchDelay":100,"responseTimeout":600}}}}
 ```
-
+### Manual creation of inference service endpoint
 ```bash
 kubectl apply -f inferenceservice.yaml
 ```
-
 ```bash
 kubectl get pods -n kubeflow-user-example-com -l serving.kserve.io/inferenceservice=yolov8
 ```
