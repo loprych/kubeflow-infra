@@ -37,10 +37,6 @@
 ├── knative
 │   ├── base
 │   │   ├── components
-│   │   │   ├── eventing-core
-│   │   │   │   └── kustomization.yaml
-│   │   │   ├── eventing-crds
-│   │   │   │   └── kustomization.yaml
 │   │   │   └── serving
 │   │   │       └── kustomization.yaml
 │   │   └── kustomization.yaml
