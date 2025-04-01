@@ -138,36 +138,6 @@ kubectl kustomize . | kubectl apply -f -
 
 # https
 
-## create file
-```bash
-touch ~/https/cluster-issuer.yaml
-```
-
-```yaml
-apiVersion: cert-manager.io/v1
-kind: ClusterIssuer
-metadata:
-  name: selfsigned-cluster-issuer
-spec:
-  selfSigned: {}
-```
-
-```bash
-kubectl apply -f cluster-issuer.yaml
-
-sudo mkdir -p /etc/ssl/certs/kubeflow
-
-sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-  -keyout /etc/ssl/certs/kubeflow/kubeflow.key \
-  -out /etc/ssl/certs/kubeflow/kubeflow.crt \
-  -subj "/CN=kubeflow.local"
-
-sudo kubectl create secret tls kubeflow-tls \
-  --cert=/etc/ssl/certs/kubeflow/kubeflow.crt \
-  --key=/etc/ssl/certs/kubeflow/kubeflow.key \
-  -n istio-system
-```
-
 ```bash
 kubectl edit gateway kubeflow-gateway -n kubeflow
 ```
@@ -206,8 +176,6 @@ spec:
   - kubeflow.local
 ```
 ```bash
-kubectl apply -f cluster-issuer.yaml
-
 kubectl apply -f kubeflow-certificate.yaml
 
 kubectl port-forward svc/istio-ingressgateway -n istio-system 8443:443
