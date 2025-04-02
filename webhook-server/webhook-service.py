@@ -4,7 +4,6 @@ import json
 import logging
 from flask import Flask, request, jsonify
 
-# Setup detailed logging first
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -12,11 +11,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Log Python version
 logger.info(f"Python version: {sys.version}")
 logger.info(f"Starting webhook service...")
 
-# Import KFP with error handling
 try:
     import kfp
     logger.info(f"KFP version: {kfp.__version__}")
@@ -26,7 +23,7 @@ except Exception as e:
 
 app = Flask(__name__)
 
-# Default namespace - can be overridden by environment variable
+# Default namespace
 DEFAULT_NAMESPACE = os.getenv("KF_NAMESPACE", "kubeflow-user-example-com")
 DEFAULT_EXPERIMENT_ID = "948f3551-b48f-429a-abd3-7e3ce73d9370"  
 logger.info(f"Using default namespace: {DEFAULT_NAMESPACE}")
