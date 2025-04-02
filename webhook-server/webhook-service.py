@@ -29,12 +29,10 @@ DEFAULT_EXPERIMENT_ID = "948f3551-b48f-429a-abd3-7e3ce73d9370"
 logger.info(f"Using default namespace: {DEFAULT_NAMESPACE}")
 logger.info(f"Default experiment ID: {DEFAULT_EXPERIMENT_ID}")
 
-# Map of pipeline names to their IDs
 PIPELINE_IDS = {
     "yolov8-pipeline": "6d6d8804-4180-472d-a771-d6c20d413a58"  
 }
 
-# You can also specify specific version IDs if needed
 PIPELINE_VERSION_IDS = {
     "yolov8-pipeline": "37885bf1-dd97-42ee-8c27-f2c030eb553a"  
 }
@@ -64,13 +62,13 @@ def trigger_pipeline(pipeline_name):
             logger.error(error_msg)
             return jsonify({"error": error_msg}), 404
 
-        # Tworzymy klienta KFP ze wskazanym hostem i namespace'em
+        
         client = kfp.Client(
             host=os.getenv("KFP_HOST", "http://ml-pipeline-ui.kubeflow.svc.cluster.local"),
             namespace=namespace
         )
 
-        # Wywołujemy pipeline za pomocą create_run_from_pipeline_id
+       
         run = client.create_run_from_pipeline_id(
             pipeline_id=pipeline_id,
             pipeline_version_id=version_id, 
@@ -104,10 +102,8 @@ def raw_trigger():
         data = request.json
         logger.info(f"Raw trigger data: {data}")
         
-        # Create client
         client = kfp.Client()
         
-        # Make the API call directly with the provided data
         run = client.run_pipeline(**data)
         
         return jsonify({
@@ -149,7 +145,6 @@ def api_debug():
             "client_methods": [m for m in dir(client) if not m.startswith('_') and callable(getattr(client, m))]
         }
         
-        # Test API by listing pipelines
         try:
             pipelines = client.list_pipelines()
             debug_info["pipeline_list_type"] = type(pipelines).__name__
@@ -166,7 +161,6 @@ def api_debug():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
-    # Run the Flask app
     logger.info("Starting Flask application...")
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
