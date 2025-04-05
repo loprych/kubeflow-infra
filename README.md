@@ -5,7 +5,7 @@ Deployment based on official manifests from [Kubeflow/manifests repo](https://gi
 ![Kubeflow Platform](https://github.com/loprych/kubeflow-infra/raw/main/kubeflowplatform.png)
 
 ### 👉 [Automated setup — kubeflow-setup-automation](https://github.com/loprych/kubeflow-infra/tree/main/kubeflow-setup-automation)
-
+### Project still in progress :D
 
 ## Manual Setup
 
